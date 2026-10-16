@@ -182,7 +182,6 @@ describe("stepComposerPromptHistory", () => {
       currentPrompt: "A",
     });
     expect(older?.prompt).toBe("zeroth");
-    // Unknown id with no matching text: browsing is over.
     const missing = stepComposerPromptHistory({
       direction: "forward",
       entries: grown,
