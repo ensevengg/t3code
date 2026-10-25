@@ -49,11 +49,6 @@ function stripTrailingReviewComments(prompt: string): string {
   return cut === prompt.length ? prompt : prompt.slice(0, cut).trimEnd();
 }
 
-/**
- * Inline terminal chips are sent as `@terminal-1:12-13` labels in the text with
- * their content in the trailing block. Once the block is stripped the label
- * points at nothing, so remove it too.
- */
 function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -105,7 +100,7 @@ export function recallableComposerPrompt(messageText: string): string {
     break;
   }
 
-  // Recall is text-only: never create dangling chips without their backing records.
+  // Recall strips chips because their backing records are absent.
   for (const reference of collectComposerContextReferences(prompt).toReversed()) {
     let { start, end } = reference;
     if (prompt[end] === " ") end += 1;
@@ -144,11 +139,8 @@ export function buildComposerPromptHistoryEntries(
 }
 
 /**
- * Returns null when the key should fall through to normal caret movement.
- * Backward starts from the visual beginning of a composer and stops at the oldest entry.
- * Forward past the newest entry restores the original draft and ends browsing. An
- * edited or sent recall no longer matches `recalled`, so browsing restarts
- * from scratch on the next backward step.
+ * Forward past the newest entry restores the original draft. An edited or sent
+ * recall no longer matches `recalled`, so browsing restarts from the newest entry.
  */
 export function stepComposerPromptHistory(input: {
   readonly direction: "backward" | "forward";
